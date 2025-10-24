@@ -17,8 +17,7 @@ import androidx.media3.session.*
 import com.app.music.MainActivity
 import com.app.music.player.TrackRepository
 import kotlin.random.Random
-
-import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.*
 
 
 class MusicPlayerService : Service() {
@@ -141,7 +140,7 @@ class MusicPlayerService : Service() {
             .addAction(android.R.drawable.ic_media_next, "Next", nextIntent)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(mediaSession.token)
+                    .setMediaSession(mediaSession.sessionCompatToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
