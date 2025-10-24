@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.app.music"
-        minSdk = 31
+        minSdk = 33
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -37,22 +37,10 @@ android {
         }
     }
 
-//    buildFeatures {
-//        compose = true
-//    }
-
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.5"
-//    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_24
         targetCompatibility = JavaVersion.VERSION_24
     }
-
-//    kotlinOptions {
-//        jvmTarget = "24"
-//    }
 }
 
 dependencies {

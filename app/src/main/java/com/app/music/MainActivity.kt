@@ -20,15 +20,18 @@ import com.app.music.player.TrackRepository
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private val permissionLauncher = registerForActivityResult(
+    private val mediaAudioPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted ->
-    }
+    ) { granted -> }
+
+    private val postNotiPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        permissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
-
+        mediaAudioPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+        postNotiPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         setContent {
             val repo = remember { TrackRepository(this) }
             val tracks by repo.tracks.collectAsState(initial = emptyList())

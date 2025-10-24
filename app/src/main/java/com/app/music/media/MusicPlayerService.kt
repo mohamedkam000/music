@@ -66,7 +66,6 @@ class MusicPlayerService : Service() {
     private fun buildNotification(): Notification {
         val builder = Notification.Builder(this, NOTIF_CHANNEL_ID)
         builder.setContentTitle("Music")
-        // Do I really need this?
 //        builder.setContentText("Playing music")
         builder.setSmallIcon(android.R.drawable.ic_media_play)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

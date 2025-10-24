@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 class TrackRepository(private val context: Context) {
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks = _tracks.asStateFlow()
-
     var playerState: PlayerState = PlayerState()
 
     init {
