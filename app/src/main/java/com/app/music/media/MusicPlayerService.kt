@@ -17,6 +17,9 @@ import com.app.music.MainActivity
 import com.app.music.player.TrackRepository
 import kotlin.random.Random
 
+import android.support.v4.media.session.MediaSessionCompat
+
+
 class MusicPlayerService : Service() {
     companion object {
         const val ACTION_PLAY_RANDOM = "ACTION_PLAY_RANDOM"
@@ -30,6 +33,8 @@ class MusicPlayerService : Service() {
 
     private lateinit var player: ExoPlayer
     private lateinit var mediaSession: MediaSession
+    private lateinit var mediaSessionCompat: MediaSessionCompat
+
     private val repo by lazy { TrackRepository(this) }
 
     override fun onCreate() {
@@ -37,6 +42,7 @@ class MusicPlayerService : Service() {
         createNotificationChannel()
         player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
+        mediaSessionCompat = MediaSessionCompat(this, "MusicPlayerCompat")
         startForeground(NOTIF_ID, buildNotification())
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -94,7 +100,7 @@ class MusicPlayerService : Service() {
             .addAction(android.R.drawable.ic_media_next, "Next", nextIntent)
             .setStyle(
                 MediaStyle()
-                    .setMediaSession(mediaSession.sessionCompatToken)
+                    .setMediaSession(mediaSessionCompat.sessionToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
             .build()
