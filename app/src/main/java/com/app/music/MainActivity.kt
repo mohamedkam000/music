@@ -14,6 +14,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import android.net.Uri
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContex
 import com.app.music.media.MusicPlayerService
 import com.app.music.player.Track
 import com.app.music.player.TrackRepository
