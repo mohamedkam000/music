@@ -94,7 +94,7 @@ class MusicPlayerService : Service() {
             .addAction(android.R.drawable.ic_media_next, "Next", nextIntent)
             .setStyle(
                 MediaStyle()
-                    .setMediaSession(mediaSession.token)
+                    .setMediaSession(mediaSession.sessionCompatToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
             .build()
