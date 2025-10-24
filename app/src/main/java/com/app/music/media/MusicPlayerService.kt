@@ -140,7 +140,7 @@ class MusicPlayerService : Service() {
             .addAction(android.R.drawable.ic_media_next, "Next", nextIntent)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(mediaSession.sessionCompatToken)
+                    .setMediaSession(mediaSessionCompat.sessionToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
