@@ -32,12 +32,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         mediaAudioPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
         postNotiPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    
+        intent?.data?.let { uri ->
+            setContent {
+                MaterialTheme {
+                    QuickPlayScreen(uri)
+                }
+            }
+            return
+        }
+
         setContent {
             val repo = remember { TrackRepository(this) }
             val tracks by repo.tracks.collectAsState(initial = emptyList())
             val playerState = remember { repo.playerState }
             val coroutineScope = rememberCoroutineScope()
-
+    
             MaterialTheme {
                 Scaffold(
                     floatingActionButton = {
@@ -79,5 +89,36 @@ fun TrackRow(track: Track, onClick: () -> Unit) {
         .padding(16.dp)) {
         Text(track.title)
         Text(track.artist ?: "Unknown", style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+@Composable
+fun QuickPlayScreen(uri: Uri) {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("testing external file", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Row {
+            Button(onClick = {
+                val intent = Intent(context, MusicPlayerService::class.java).apply {
+                    action = MusicPlayerService.ACTION_PLAY_TRACK
+                    putExtra("track_uri", uri.toString())
+                }
+                context.startService(intent)
+            }) { Text("Play") }
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(onClick = {
+                val intent = Intent(context, MusicPlayerService::class.java).apply {
+                    action = MusicPlayerService.ACTION_TOGGLE
+                }
+                context.startService(intent)
+            }) { Text("Pause") }
+        }
     }
 }
