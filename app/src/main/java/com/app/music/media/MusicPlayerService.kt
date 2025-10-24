@@ -1,20 +1,23 @@
 package com.app.music.media
 
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import androidx.media.app.NotificationCompat.*
-import androidx.media3.common.*
-import androidx.media3.exoplayer.*
-import androidx.media3.session.*
+import androidx.media.app.NotificationCompat.MediaStyle
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
 import com.app.music.MainActivity
 import com.app.music.player.TrackRepository
 import kotlin.random.Random
 
 class MusicPlayerService : Service() {
-
     companion object {
         const val ACTION_PLAY_RANDOM = "ACTION_PLAY_RANDOM"
         const val ACTION_PLAY_TRACK = "ACTION_PLAY_TRACK"
@@ -27,25 +30,18 @@ class MusicPlayerService : Service() {
 
     private lateinit var player: ExoPlayer
     private lateinit var mediaSession: MediaSession
-    private lateinit var sessionConnector: MediaSessionConnector
     private val repo by lazy { TrackRepository(this) }
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-
         player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
-        sessionConnector = MediaSessionConnector(mediaSession)
-        sessionConnector.setPlayer(player)
-
         startForeground(NOTIF_ID, buildNotification())
-
-        player.addListener(object : androidx.media3.common.Player.Listener {
+        player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 startForeground(NOTIF_ID, buildNotification())
             }
-
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 startForeground(NOTIF_ID, buildNotification())
             }
@@ -82,26 +78,10 @@ class MusicPlayerService : Service() {
 
     private fun buildNotification(): Notification {
         val currentTrack = player.currentMediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Unknown Track"
-
-        val openIntent = PendingIntent.getActivity(
-            this, 0, Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val prevIntent = PendingIntent.getService(
-            this, 1, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_PREV },
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val playPauseIntent = PendingIntent.getService(
-            this, 2, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_TOGGLE },
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val nextIntent = PendingIntent.getService(
-            this, 3, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_NEXT },
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        val openIntent = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val prevIntent = PendingIntent.getService(this, 1, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_PREV }, PendingIntent.FLAG_IMMUTABLE)
+        val playPauseIntent = PendingIntent.getService(this, 2, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_TOGGLE }, PendingIntent.FLAG_IMMUTABLE)
+        val nextIntent = PendingIntent.getService(this, 3, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_NEXT }, PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
             .setContentTitle("Music")
@@ -114,18 +94,16 @@ class MusicPlayerService : Service() {
             .addAction(android.R.drawable.ic_media_next, "Next", nextIntent)
             .setStyle(
                 MediaStyle()
-                    .setMediaSession(mediaSession.sessionToken)
+                    .setMediaSession(mediaSession.token)
                     .setShowActionsInCompactView(0, 1, 2)
             )
             .build()
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val nm = getSystemService(NotificationManager::class.java)
-            val chan = NotificationChannel(NOTIF_CHANNEL_ID, "Music player", NotificationManager.IMPORTANCE_LOW)
-            nm.createNotificationChannel(chan)
-        }
+        val nm = getSystemService(NotificationManager::class.java)
+        val chan = NotificationChannel(NOTIF_CHANNEL_ID, "Music player", NotificationManager.IMPORTANCE_LOW)
+        nm.createNotificationChannel(chan)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
