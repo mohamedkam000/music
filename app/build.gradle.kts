@@ -50,9 +50,11 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0-alpha05")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0-alpha05")
+    implementation("androidx.media:media:1.7.1")
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0")
     implementation("androidx.media3:media3-common:1.8.0")
+    implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0-alpha02")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }

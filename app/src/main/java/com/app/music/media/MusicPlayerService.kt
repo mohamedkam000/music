@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import androidx.media.app.NotificationCompat.MediaStyle
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.media.app.NotificationCompat.*
+import androidx.media3.common.*
+import androidx.media3.exoplayer.*
 import androidx.media3.session.*
 import com.app.music.MainActivity
 import com.app.music.player.TrackRepository
