@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
@@ -54,6 +55,14 @@ class MusicPlayerService : Service() {
         })
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        player.release()
+        mediaSession.release()
+        stopSelf()
+        android.os.Process.killProcess(android.os.Process.myPid())
+        kotlin.system.exitProcess(0)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_PLAY_RANDOM -> playRandom()
@@ -83,26 +92,59 @@ class MusicPlayerService : Service() {
     }
 
     private fun buildNotification(): Notification {
-        val currentTrack = player.currentMediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Unknown Track"
-        val openIntent = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val prevIntent = PendingIntent.getService(this, 1, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_PREV }, PendingIntent.FLAG_IMMUTABLE)
-        val playPauseIntent = PendingIntent.getService(this, 2, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_TOGGLE }, PendingIntent.FLAG_IMMUTABLE)
-        val nextIntent = PendingIntent.getService(this, 3, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_NEXT }, PendingIntent.FLAG_IMMUTABLE)
-
+        val mediaMetadata = player.mediaMetadata
+        val currentTrack = mediaMetadata.title?.toString() ?: "Unknown Track"
+        val currentArtist = mediaMetadata.artist?.toString() ?: "Unknown Artist"
+        val artwork = mediaMetadata.artworkData
+            ?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+    
+        val openIntent = PendingIntent.getActivity(
+            this, 0, Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+    
+        val prevIntent = PendingIntent.getService(
+            this, 1, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_PREV },
+            PendingIntent.FLAG_IMMUTABLE
+        )
+    
+        val playPauseIntent = PendingIntent.getService(
+            this, 2, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_TOGGLE },
+            PendingIntent.FLAG_IMMUTABLE
+        )
+    
+        val nextIntent = PendingIntent.getService(
+            this, 3, Intent(this, MusicPlayerService::class.java).apply { action = ACTION_NEXT },
+            PendingIntent.FLAG_IMMUTABLE
+        )
+    
         return NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
-            .setContentTitle("Music")
-            .setContentText(currentTrack)
-            .setSmallIcon(android.R.drawable.ic_media_play)
+            .setContentTitle(currentTrack)
+            .setContentText(currentArtist)
+            .setLargeIcon(artwork)
+            .setSmallIcon(
+                if (player.isPlaying)
+                    android.R.drawable.ic_media_play
+                else
+                    android.R.drawable.ic_media_pause
+            )
             .setContentIntent(openIntent)
             .setOngoing(player.isPlaying)
             .addAction(android.R.drawable.ic_media_previous, "Prev", prevIntent)
-            .addAction(if (player.isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play, "Play/Pause", playPauseIntent)
+            .addAction(
+                if (player.isPlaying)
+                    android.R.drawable.ic_media_pause
+                else
+                    android.R.drawable.ic_media_play,
+                "Play/Pause", playPauseIntent
+            )
             .addAction(android.R.drawable.ic_media_next, "Next", nextIntent)
             .setStyle(
-                MediaStyle()
-                    .setMediaSession(mediaSessionCompat.sessionToken)
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    .setMediaSession(mediaSession.sessionCompatToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
     }
 

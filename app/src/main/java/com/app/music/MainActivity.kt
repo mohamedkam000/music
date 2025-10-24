@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                             }
                             startService(intent)
                         }) {
-                            Text("Rnd")
+                            Text("Play")
                         }
                     },
                     bottomBar = {
