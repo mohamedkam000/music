@@ -8,8 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaSession
-import androidx.media3.session.MediaSessionConnector
+import androidx.media3.session.*
 import com.app.music.MainActivity
 import com.app.music.player.TrackRepository
 import kotlin.random.Random
@@ -42,7 +41,7 @@ class MusicPlayerService : Service() {
 
         startForeground(NOTIF_ID, buildNotification())
 
-        player.addListener(object : com.google.android.exoplayer2.Player.Listener {
+        player.addListener(object : androidx.media3.common.Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 startForeground(NOTIF_ID, buildNotification())
             }
