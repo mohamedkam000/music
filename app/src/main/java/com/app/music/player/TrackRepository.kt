@@ -15,29 +15,49 @@ class TrackRepository(private val context: Context) {
     }
 
     private fun loadTracks() {
+        val MIN_FILE_SIZE_BYTES = 1 * 1024 * 1024 // 1 MB minimum size
+
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.SIZE,
+            MediaStore.Audio.Media.DATA
         )
-        val selection = "${MediaStore.Audio.Media.IS_MUSIC}=1"
+
+        val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0 AND " +
+                        "${MediaStore.Audio.Media.SIZE} >= ? AND " +
+                        "${MediaStore.Audio.Media.DATA} NOT LIKE ?"
+
+        val selectionArgs = arrayOf(
+            MIN_FILE_SIZE_BYTES.toString(),
+            "%/Android/media/%"
+        )
+
+        val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
+
         val query = context.contentResolver.query(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             projection,
             selection,
-            null,
-            "${MediaStore.Audio.Media.TITLE} ASC"
+            selectionArgs,
+            sortOrder
         )
+
         val list = mutableListOf<Track>()
         query?.use { cursor ->
             val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val title = cursor.getString(titleCol) ?: "Unknown"
                 val artist = cursor.getString(artistCol)
-                val contentUri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL).buildUpon().appendPath(id.toString()).build()
+                val contentUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    id
+                )
                 list += Track(id, title, artist, contentUri)
             }
         }
