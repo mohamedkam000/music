@@ -1,6 +1,6 @@
 package com.app.music.player
 
-import android.content.Context
+import android.content.*
 import android.provider.MediaStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ class TrackRepository(private val context: Context) {
     }
 
     private fun loadTracks() {
-        val MIN_FILE_SIZE_BYTES = 1 * 1024 * 1024 // 1 MB minimum size
+        val MIN_FILE_SIZE_BYTES = 1 * 1024 * 1024
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
